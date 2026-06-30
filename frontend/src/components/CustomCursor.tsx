@@ -231,7 +231,6 @@ export default function CustomCursor() {
     <canvas
       ref={canvasRef}
       className="fixed inset-0 pointer-events-none z-[60] bg-transparent"
-      style={{ mixBlendMode: 'screen' }}
     />
   );
 }
