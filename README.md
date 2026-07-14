@@ -1,56 +1,52 @@
-# Veridion
+# Veridion Financial Sandbox
 
-A simulated crypto-trading sandbox: React/Vite/TypeScript frontend and a Node/Express/TypeScript backend backed by PostgreSQL.
+Veridion is a compliant single-page React framework financial sandbox. It acts as an interactive simulation gateway for testing, trading, and securing digital assets, including Bitcoin (BTC), Ethereum (ETH), and Veridion's own state currency, Veridion Coin (VRDN).
 
-## Structure
+---
 
-- `frontend/` — React + Vite + Tailwind UI
-- `backend/` — Express + Prisma + PostgreSQL API (auth, portfolio/trading, security center, support tickets)
+## 📚 Technical Documentation Directory
 
-## Local development
+To make the codebase accessible, the documentation is divided into separate, specialized files:
 
-### 1. Backend
+1. **[ABOUT.md](file:///home/krushn/Veridion/ABOUT.md)**: Product details, system architecture, core security components (MFA, Session lockouts), and sandbox desk operations.
+2. **[SCHEMA.md](file:///home/krushn/Veridion/SCHEMA.md)**: Comprehensive database schemas, tables structure, relations, and data types (PostgreSQL mapped via Prisma).
+3. **[INTEGRATIONS.md](file:///home/krushn/Veridion/INTEGRATIONS.md)**: Specifications and payloads for the upcoming transition to a **Rust-based sovereign blockchain ledger** (including RPC structs and WebSocket block-minting event formats).
 
+---
+
+## 🛠️ Sandbox Structure
+
+* **`frontend/`**: Single-page application using React, Vite, and TypeScript. Includes real-time ticking yield compounding, live ledger block explorer simulations, and state indicators.
+* **`backend/`**: Node.js + Express API server with JWT cookie session controls, geographical IP-based device tracking, and programmatic startup database seeding.
+
+---
+
+## 🚀 Local Development Setup
+
+### 1. Backend API Server
 ```bash
 cd backend
-cp .env.example .env        # edit JWT secrets if you like
-docker compose up -d db     # starts Postgres only (omit `db` to also build/run the backend in Docker)
+cp .env.example .env        # edit JWT secrets or CORS settings if needed
+docker compose up -d db     # starts the PostgreSQL container only
 npm install
-npm run prisma:migrate      # creates tables
-npm run prisma:seed         # creates demo user@example.com / password123
-npm run dev                 # http://localhost:4000
+npm run prisma:migrate      # applies migration schemas
+npm run dev                 # runs backend server on http://localhost:4000
 ```
+*Note: On server startup, the database automatically runs a programmatic seed check to ensure the default **Administrator Demo** account (`user@example.com` / `password123`) is created.*
 
-Don't have Docker? Point `DATABASE_URL` in `.env` at any reachable Postgres instance (e.g. a free Neon/Supabase project) instead of running `docker compose`.
-
-### 2. Frontend
-
+### 2. Frontend Client
 ```bash
 cd frontend
-cp .env.example .env        # VITE_API_URL=http://localhost:4000
+cp .env.example .env        # specifies VITE_API_URL=http://localhost:4000
 npm install
-npm run dev                 # http://localhost:5173
+npm run dev                 # runs Vite web client on http://localhost:5173
 ```
 
-## Production deployment
+---
 
-### Option A — Docker Compose (single host)
-
-```bash
-cd backend
-docker compose up -d --build
-```
-
-This runs Postgres + the API together. Serve `frontend/dist` (after `npm run build`) from any static host or a reverse proxy in front of the same machine, with `VITE_API_URL` pointing at the backend's public URL.
-
-### Option B — Split hosting
-
-- **Backend**: deploy `backend/` to any Node host with a Postgres add-on (Render, Railway, Fly.io, etc.). Set `DATABASE_URL`, `JWT_ACCESS_SECRET`, `JWT_REFRESH_SECRET`, and `CORS_ORIGIN` (your frontend's URL) as environment variables, then run `npx prisma migrate deploy` once on first deploy.
-- **Frontend**: deploy `frontend/` (static `npm run build` output) to Vercel/Netlify/Cloudflare Pages, with `VITE_API_URL` set to the backend's public URL.
-
-Because the backend issues the refresh token as a cross-site cookie in production, the frontend and backend should each be served over HTTPS.
-
-## Notes
-
-- Crypto prices are a simulated random-walk feed (no external market data API). Password reset codes are logged server-side rather than emailed, since no transactional email provider is configured — wire one in `backend/src/modules/auth/auth.service.ts` if real email delivery is needed.
-- 2FA uses real per-user TOTP secrets (compatible with any authenticator app), not a hardcoded demo code.
+## 🏁 Verification & Build Scripts
+Both the frontend and backend applications are validated:
+* **Backend Build Check**: `npm run build` inside `backend/` compiling TypeScript output.
+* **Backend Lint & Typecheck**: `npm run typecheck` verifying Prisma client models.
+* **Frontend Build Check**: `npm run build` inside `frontend/` generating static asset bundles under `dist/`.
+* **Frontend Typecheck**: `npx tsc --noEmit` confirming React prop structures.
