@@ -2,7 +2,7 @@ import { Banknote } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 
 export default function PortfolioTab() {
-  const { totalValuation, balances, prices, btcUSDVal, ethUSDVal, vrdUSDVal, transactions } = useApp();
+  const { totalValuation, balances, prices, btcUSDVal, ethUSDVal, vrdnUSDVal, transactions } = useApp();
 
   return (
     <div className="space-y-8">
@@ -40,11 +40,11 @@ export default function PortfolioTab() {
 
         <div className="bg-[#121214] border border-zinc-800/80 p-5 rounded-2xl">
           <div className="flex items-center justify-between text-zinc-400 mb-2">
-            <span className="text-[10px] font-bold uppercase tracking-wider">VERIDION COIN (VRD)</span>
-            <span className="text-[10px] font-mono text-[#c29943] font-bold">${prices.VRD.toLocaleString()}</span>
+            <span className="text-[10px] font-bold uppercase tracking-wider">VERIDION COIN (VRDN)</span>
+            <span className="text-[10px] font-mono text-[#c29943] font-bold">${prices.VRDN.toLocaleString()}</span>
           </div>
-          <p className="text-xl font-bold text-white">{balances.VRD.toFixed(2)} VRD</p>
-          <p className="text-[10px] text-zinc-500 mt-1 font-mono">${vrdUSDVal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} USD</p>
+          <p className="text-xl font-bold text-white">{balances.VRDN.toFixed(2)} VRDN</p>
+          <p className="text-[10px] text-zinc-500 mt-1 font-mono">${vrdnUSDVal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} USD</p>
         </div>
       </div>
 

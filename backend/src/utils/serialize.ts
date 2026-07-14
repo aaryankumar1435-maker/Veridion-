@@ -16,6 +16,6 @@ export function toBalances(user: User) {
     USD: user.balanceUSD.toNumber(),
     BTC: user.balanceBTC.toNumber(),
     ETH: user.balanceETH.toNumber(),
-    VRD: user.balanceVRD.toNumber(),
+    VRDN: user.balanceVRDN.toNumber(),
   };
 }

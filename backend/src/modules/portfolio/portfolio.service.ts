@@ -7,22 +7,22 @@ import { generateMockHash, generateTransactionId, generateVerificationCode } fro
 import { toBalances } from '../../utils/serialize';
 import type { ReplenishInput, TradeInput } from './portfolio.schemas';
 
-const ASSET_NAMES: Record<'BTC' | 'ETH' | 'VRD', string> = {
+const ASSET_NAMES: Record<'BTC' | 'ETH' | 'VRDN', string> = {
   BTC: 'Bitcoin (BTC)',
   ETH: 'Ethereum (ETH)',
-  VRD: 'Veridion Coin (VRD)',
+  VRDN: 'Veridion Coin (VRDN)',
 };
 
-function getAssetBalance(user: User, asset: 'BTC' | 'ETH' | 'VRD') {
+function getAssetBalance(user: User, asset: 'BTC' | 'ETH' | 'VRDN') {
   if (asset === 'BTC') return user.balanceBTC;
   if (asset === 'ETH') return user.balanceETH;
-  return user.balanceVRD;
+  return user.balanceVRDN;
 }
 
-function buildAssetUpdate(asset: 'BTC' | 'ETH' | 'VRD', value: Prisma.Decimal): Prisma.UserUpdateInput {
+function buildAssetUpdate(asset: 'BTC' | 'ETH' | 'VRDN', value: Prisma.Decimal): Prisma.UserUpdateInput {
   if (asset === 'BTC') return { balanceBTC: value };
   if (asset === 'ETH') return { balanceETH: value };
-  return { balanceVRD: value };
+  return { balanceVRDN: value };
 }
 
 function computeValuation(balances: ReturnType<typeof toBalances>, prices: ReturnType<typeof priceEngine.getSnapshot>) {
@@ -30,7 +30,7 @@ function computeValuation(balances: ReturnType<typeof toBalances>, prices: Retur
     balances.USD +
     balances.BTC * prices.BTC +
     balances.ETH * prices.ETH +
-    balances.VRD * prices.VRD
+    balances.VRDN * prices.VRDN
   );
 }
 

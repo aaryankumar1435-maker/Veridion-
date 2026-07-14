@@ -78,7 +78,7 @@ export const portfolioApi = {
   getPrices() {
     return apiRequest<{ prices: Prices }>('/api/portfolio/prices');
   },
-  trade(input: { asset: 'BTC' | 'ETH' | 'VRD'; action: 'BUY' | 'SELL'; volume: number }) {
+  trade(input: { asset: 'BTC' | 'ETH' | 'VRDN'; action: 'BUY' | 'SELL'; volume: number }) {
     return apiRequest<{ balances: Balances; transaction: Transaction; success: boolean; message: string }>(
       '/api/portfolio/trade',
       { method: 'POST', body: input },

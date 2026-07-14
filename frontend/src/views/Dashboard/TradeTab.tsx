@@ -41,7 +41,7 @@ export default function TradeTab() {
               >
                 <option value="BTC">Bitcoin (BTC)</option>
                 <option value="ETH">Ethereum (ETH)</option>
-                <option value="VRD">Veridion Coin (VRD)</option>
+                <option value="VRDN">Veridion Coin (VRDN)</option>
               </select>
             </div>
 
@@ -122,8 +122,8 @@ export default function TradeTab() {
               <span className="font-bold text-white">${prices.ETH.toLocaleString()}</span>
             </div>
             <div className="flex justify-between items-center">
-              <span className="text-zinc-400">VRD / USD</span>
-              <span className="font-bold text-[#c29943]">${prices.VRD.toLocaleString()}</span>
+              <span className="text-zinc-400">VRDN / USD</span>
+              <span className="font-bold text-[#c29943]">${prices.VRDN.toLocaleString()}</span>
             </div>
           </div>
         </div>

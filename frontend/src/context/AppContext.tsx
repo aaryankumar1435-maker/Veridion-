@@ -9,7 +9,7 @@ export type { ActiveDevice, Balances, Prices, TwoFactorSetup };
 export type ViewName =
   | 'home' | 'about' | 'know-us' | 'contact'
   | 'login' | 'register' | 'forgot' | 'profile' | 'dashboard';
-export type DashboardTab = 'assets' | 'swap' | 'security' | 'support';
+export type DashboardTab = 'assets' | 'swap' | 'sovereign' | 'security' | 'support';
 export type SupportMode = 'form' | 'tracker';
 export type ForgotStep = 'request' | 'reset';
 export type ToastType = 'success' | 'error' | 'info';
@@ -94,8 +94,13 @@ interface AppContextValue {
   handleManualTickerSync: () => void;
   btcUSDVal: number;
   ethUSDVal: number;
-  vrdUSDVal: number;
+  vrdnUSDVal: number;
   totalValuation: number;
+  stakedVRDN: number;
+  accumulatedYield: number;
+  stakeVRDN: (amount: number) => boolean;
+  unstakeVRDN: (amount: number) => boolean;
+  claimYield: () => void;
 
   // Support / tickets
   tickets: Ticket[];
@@ -172,9 +177,19 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const [profileNewPassword, setProfileNewPassword] = useState('');
 
   // Dynamic Portfolio & Market Asset State
-  const [balances, setBalances] = useState<Balances>({ USD: 0, BTC: 0, ETH: 0, VRD: 0 });
-  const [prices, setPrices] = useState<Prices>({ BTC: 67240.5, ETH: 3480.2, VRD: 1.25 });
+  const [balances, setBalances] = useState<Balances>({ USD: 0, BTC: 0, ETH: 0, VRDN: 0 });
+  const [prices, setPrices] = useState<Prices>({ BTC: 67240.5, ETH: 3480.2, VRDN: 1.25 });
   const [transactions, setTransactions] = useState<Transaction[]>([]);
+
+  // Sovereign VRDN Staking State
+  const [stakedVRDN, setStakedVRDN] = useState<number>(() => {
+    const saved = localStorage.getItem('vrdn_staked');
+    return saved ? parseFloat(saved) : 0;
+  });
+  const [accumulatedYield, setAccumulatedYield] = useState<number>(() => {
+    const saved = localStorage.getItem('vrdn_yield');
+    return saved ? parseFloat(saved) : 0;
+  });
 
   // Quick Trade variables
   const [tradeAsset, setTradeAsset] = useState('BTC');
@@ -345,7 +360,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       try {
         const data = JSON.parse(event.data);
         if (data?.type === 'prices') {
-          setPrices({ BTC: data.payload.BTC, ETH: data.payload.ETH, VRD: data.payload.VRD });
+          setPrices({ BTC: data.payload.BTC, ETH: data.payload.ETH, VRDN: data.payload.VRDN });
         }
       } catch {
         // ignore malformed frames
@@ -395,7 +410,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
 
     try {
       const result = await portfolioApi.trade({
-        asset: tradeAsset as 'BTC' | 'ETH' | 'VRD',
+        asset: tradeAsset as 'BTC' | 'ETH' | 'VRDN',
         action: tradeAction as 'BUY' | 'SELL',
         volume,
       });
@@ -449,6 +464,67 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  useEffect(() => {
+    if (stakedVRDN <= 0) return;
+    const interval = setInterval(() => {
+      // APY = 8.5% -> per second interest
+      const interestPerSecond = stakedVRDN * (0.085 / (365 * 24 * 3600));
+      setAccumulatedYield((prev) => {
+        const next = prev + interestPerSecond;
+        localStorage.setItem('vrdn_yield', next.toString());
+        return next;
+      });
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [stakedVRDN]);
+
+  const stakeVRDN = (amount: number): boolean => {
+    if (amount <= 0 || balances.VRDN < amount) {
+      showToast('Insufficient liquid VRDN balance.', 'error');
+      return false;
+    }
+    const nextStaked = stakedVRDN + amount;
+    setStakedVRDN(nextStaked);
+    localStorage.setItem('vrdn_staked', nextStaked.toString());
+    setBalances(prev => ({
+      ...prev,
+      VRDN: prev.VRDN - amount
+    }));
+    showToast(`Successfully locked ${amount.toFixed(2)} VRDN into Sovereign Staking.`, 'success');
+    return true;
+  };
+
+  const unstakeVRDN = (amount: number): boolean => {
+    if (amount <= 0 || stakedVRDN < amount) {
+      showToast('Insufficient staked VRDN balance.', 'error');
+      return false;
+    }
+    const nextStaked = stakedVRDN - amount;
+    setStakedVRDN(nextStaked);
+    localStorage.setItem('vrdn_staked', nextStaked.toString());
+    setBalances(prev => ({
+      ...prev,
+      VRDN: prev.VRDN + amount
+    }));
+    showToast(`Successfully unlocked ${amount.toFixed(2)} VRDN from Sovereign Staking.`, 'success');
+    return true;
+  };
+
+  const claimYield = () => {
+    if (accumulatedYield <= 0) {
+      showToast('No yield accumulated yet.', 'info');
+      return;
+    }
+    const claimed = accumulatedYield;
+    setBalances(prev => ({
+      ...prev,
+      VRDN: prev.VRDN + claimed
+    }));
+    setAccumulatedYield(0);
+    localStorage.removeItem('vrdn_yield');
+    showToast(`Claimed ${claimed.toFixed(6)} VRDN yield into liquid account.`, 'success');
+  };
+
   const logout = async () => {
     try {
       await authApi.logout();
@@ -462,7 +538,11 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     setSecurityLogs([]);
     setTickets([]);
     setTransactions([]);
-    setBalances({ USD: 0, BTC: 0, ETH: 0, VRD: 0 });
+    setBalances({ USD: 0, BTC: 0, ETH: 0, VRDN: 0 });
+    setStakedVRDN(0);
+    setAccumulatedYield(0);
+    localStorage.removeItem('vrdn_staked');
+    localStorage.removeItem('vrdn_yield');
   };
 
   const handleRegister = async (e: React.FormEvent) => {
@@ -696,8 +776,8 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
 
   const btcUSDVal = balances.BTC * prices.BTC;
   const ethUSDVal = balances.ETH * prices.ETH;
-  const vrdUSDVal = balances.VRD * prices.VRD;
-  const totalValuation = balances.USD + btcUSDVal + ethUSDVal + vrdUSDVal;
+  const vrdnUSDVal = balances.VRDN * prices.VRDN;
+  const totalValuation = balances.USD + btcUSDVal + ethUSDVal + vrdnUSDVal;
 
   const value: AppContextValue = {
     currentView, setCurrentView, dashboardTab, setDashboardTab, mobileMenuOpen, setMobileMenuOpen,
@@ -712,7 +792,8 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     profileNewPassword, setProfileNewPassword, handleProfileUpdate, handlePasswordRotate,
     balances, prices, transactions, tradeAsset, setTradeAsset, tradeAction, setTradeAction,
     tradeVolume, setTradeVolume, executeTrade, replenishUSD, handleManualTickerSync,
-    btcUSDVal, ethUSDVal, vrdUSDVal, totalValuation,
+    btcUSDVal, ethUSDVal, vrdnUSDVal, totalValuation,
+    stakedVRDN, accumulatedYield, stakeVRDN, unstakeVRDN, claimYield,
     tickets, complaintForm, setComplaintForm, uploadedFiles, searchTicketId, setSearchTicketId,
     searchedTicketResult, setSearchedTicketResult, supportMode, setSupportMode, aiPolishLoading,
     handleComplaintSubmit, handleTicketSearch, handleFileUpload, removeAttachment,

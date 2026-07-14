@@ -1,7 +1,7 @@
 import { z } from 'zod';
 
 export const tradeSchema = z.object({
-  asset: z.enum(['BTC', 'ETH', 'VRD']),
+  asset: z.enum(['BTC', 'ETH', 'VRDN']),
   action: z.enum(['BUY', 'SELL']),
   volume: z.number().positive('Volume must be greater than zero'),
 });

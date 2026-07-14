@@ -3,14 +3,14 @@ import { EventEmitter } from 'events';
 export interface PriceSnapshot {
   BTC: number;
   ETH: number;
-  VRD: number;
+  VRDN: number;
   updatedAt: string;
 }
 
 const INITIAL_PRICES: Omit<PriceSnapshot, 'updatedAt'> = {
   BTC: 67240.5,
   ETH: 3480.2,
-  VRD: 1.25,
+  VRDN: 1.25,
 };
 
 const UPDATE_INTERVAL_MS = 12_000;
@@ -35,7 +35,7 @@ class PriceEngine extends EventEmitter {
     const next: PriceSnapshot = {
       BTC: this.walk(this.prices.BTC),
       ETH: this.walk(this.prices.ETH),
-      VRD: this.walk(this.prices.VRD),
+      VRDN: this.walk(this.prices.VRDN),
       updatedAt: new Date().toISOString(),
     };
     this.prices = next;

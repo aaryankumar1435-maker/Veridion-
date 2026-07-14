@@ -7,8 +7,8 @@ export interface SessionUser {
   lockTimeoutSeconds: number;
 }
 
-export interface Balances { USD: number; BTC: number; ETH: number; VRD: number; }
-export interface Prices { BTC: number; ETH: number; VRD: number; }
+export interface Balances { USD: number; BTC: number; ETH: number; VRDN: number; }
+export interface Prices { BTC: number; ETH: number; VRDN: number; }
 
 export interface ActiveDevice {
   id: string;

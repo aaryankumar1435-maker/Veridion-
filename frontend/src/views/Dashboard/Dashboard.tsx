@@ -1,13 +1,15 @@
-import { LayoutDashboard, LifeBuoy, LogOut, ShieldCheck, TrendingUp, Wallet, RefreshCw } from 'lucide-react';
+import { LayoutDashboard, LifeBuoy, LogOut, ShieldCheck, TrendingUp, Wallet, RefreshCw, Coins } from 'lucide-react';
 import { useApp, DashboardTab as DashboardTabName } from '../../context/AppContext';
 import PortfolioTab from './PortfolioTab';
 import TradeTab from './TradeTab';
 import SecurityTab from './SecurityTab';
 import SupportTab from './SupportTab';
+import SovereignTab from './SovereignTab';
 
 const TAB_LABELS: Record<DashboardTabName, string> = {
   assets: 'PORTFOLIO DECK',
   swap: 'TRADE DESK',
+  sovereign: 'SOVEREIGN PORTAL',
   security: 'SECURITY CENTER',
   support: 'SUPPORT DESK',
 };
@@ -40,6 +42,15 @@ export default function Dashboard() {
           }`}
         >
           <TrendingUp className="w-4.5 h-4.5" /> Trade Desk
+        </button>
+
+        <button
+          onClick={() => setDashboardTab('sovereign')}
+          className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-bold uppercase tracking-wider transition-all text-left ${
+            dashboardTab === 'sovereign' ? 'bg-[#c29943]/20 text-[#c29943]' : 'text-zinc-400 hover:text-white hover:bg-zinc-900'
+          }`}
+        >
+          <Coins className="w-4.5 h-4.5" /> Sovereign Portal
         </button>
 
         <button
@@ -88,6 +99,7 @@ export default function Dashboard() {
 
         {dashboardTab === 'assets' && <PortfolioTab />}
         {dashboardTab === 'swap' && <TradeTab />}
+        {dashboardTab === 'sovereign' && <SovereignTab />}
         {dashboardTab === 'security' && <SecurityTab />}
         {dashboardTab === 'support' && <SupportTab />}
       </div>

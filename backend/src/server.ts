@@ -5,6 +5,7 @@ import { env } from './config/env';
 import { logger } from './lib/logger';
 import { prisma } from './lib/prisma';
 import { priceEngine } from './services/priceEngine';
+import { seedDemoUser } from './lib/seed';
 
 const app = createApp();
 const server = http.createServer(app);
@@ -25,8 +26,13 @@ const onPriceUpdate = (snapshot: ReturnType<typeof priceEngine.getSnapshot>) => 
 priceEngine.on('update', onPriceUpdate);
 priceEngine.start();
 
-server.listen(env.PORT, () => {
+server.listen(env.PORT, async () => {
   logger.info(`Veridion backend listening on port ${env.PORT}`);
+  try {
+    await seedDemoUser();
+  } catch (err) {
+    logger.error({ err }, 'Failed to seed demo user on startup');
+  }
 });
 
 async function shutdown(signal: string) {
