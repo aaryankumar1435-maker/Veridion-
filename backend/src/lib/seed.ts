@@ -20,7 +20,7 @@ export async function seedDemoUser() {
       email,
       name: 'Administrator Demo',
       passwordHash,
-      balanceVRDN: 2500,
+      balanceVRD: 2500,
     },
   });
 

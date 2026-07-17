@@ -26,7 +26,7 @@ model User {
   balanceUSD         Decimal  @default(15400) @db.Decimal(18, 2)
   balanceBTC         Decimal  @default(0.1245) @db.Decimal(18, 8)
   balanceETH         Decimal  @default(1.845) @db.Decimal(18, 8)
-  balanceVRDN        Decimal  @default(2500) @db.Decimal(18, 8)
+  balanceVRD Decimal @default(2500) @db.Decimal(18,8)
 
   transactions       Transaction[]
   devices            Device[]

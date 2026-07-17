@@ -16,13 +16,13 @@ const ASSET_NAMES: Record<'BTC' | 'ETH' | 'VRDN', string> = {
 function getAssetBalance(user: User, asset: 'BTC' | 'ETH' | 'VRDN') {
   if (asset === 'BTC') return user.balanceBTC;
   if (asset === 'ETH') return user.balanceETH;
-  return user.balanceVRDN;
+  return user.balanceVRD;
 }
 
 function buildAssetUpdate(asset: 'BTC' | 'ETH' | 'VRDN', value: Prisma.Decimal): Prisma.UserUpdateInput {
   if (asset === 'BTC') return { balanceBTC: value };
   if (asset === 'ETH') return { balanceETH: value };
-  return { balanceVRDN: value };
+  return { balanceVRD: value };
 }
 
 function computeValuation(balances: ReturnType<typeof toBalances>, prices: ReturnType<typeof priceEngine.getSnapshot>) {
